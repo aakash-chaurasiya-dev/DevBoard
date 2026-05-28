@@ -1,15 +1,16 @@
 {
   "name": "@devboard/api",
   "version": "1.0.0",
-  "description": "",
+  "description": "DevBoard backend API service",
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit"
   },
   "keywords": [],
-  "author": "",
+  "author": "aakas",
   "license": "ISC",
   "type": "module",
   "dependencies": {

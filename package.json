@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
-    "build": "pnpm -r build"
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
   },
   "keywords": [],
-  "author": "",
+  "author": "aakas",
   "license": "ISC",
   "devEngines": {
     "packageManager": {
