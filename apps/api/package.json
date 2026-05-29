@@ -10,7 +10,7 @@
     "lint": "tsc --noEmit"
   },
   "keywords": [],
-  "author": "aakas",
+  "author": "aakash chaurasiya",
   "license": "ISC",
   "type": "module",
   "dependencies": {
