@@ -4,11 +4,25 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
+# Copy root workspace config first
+COPY pnpm-workspace.yaml ./
 COPY package.json ./
+COPY pnpm-lock.yaml ./
 
-RUN pnpm install
+# Copy only package.json files for all workspaces
+# (needed so pnpm can resolve the full workspace graph)
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/tsconfig/package.json ./packages/tsconfig/package.json
+COPY packages/types/package.json ./packages/types/package.json
 
-COPY . .
+# Install from root workspace without requiring a pristine lockfile
+RUN pnpm install --no-frozen-lockfile
+
+# Now copy actual source code
+COPY apps/web ./apps/web
+COPY packages ./packages
+
+WORKDIR /app/apps/web
 
 EXPOSE 5173
 
