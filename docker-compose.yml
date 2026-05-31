@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: devboard_postgres
+    environment:
+      POSTGRES_USER: devboard
+      POSTGRES_PASSWORD: devboard123
+      POSTGRES_DB: devboard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: devboard_redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile.dev
+    container_name: devboard_api
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://devboard:devboard123@postgres:5432/devboard_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4000:4000"
+    working_dir: /app
+    command: sh -c "pnpm install --no-frozen-lockfile --config.confirmModulesPurge=false && pnpm --filter @devboard/api dev"
+    volumes:
+      - ./apps/api:/app/apps/api
+    depends_on:
+      - postgres
+      - redis
+
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile.dev
+    container_name: devboard_web
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    command: sh -c "pnpm install --no-frozen-lockfile --config.confirmModulesPurge=false && pnpm --filter @devboard/web run dev --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - web_node_modules:/app/apps/web/node_modules
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  web_node_modules:

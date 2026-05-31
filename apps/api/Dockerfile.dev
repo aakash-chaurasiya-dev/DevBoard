@@ -1,0 +1,28 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# Copy workspace config
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+
+# Copy all package.json files (workspace graph resolution)
+COPY apps/api/package.json ./apps/api/package.json
+COPY packages/tsconfig/package.json ./packages/tsconfig/package.json
+COPY packages/types/package.json ./packages/types/package.json
+
+# Install from root workspace without requiring a pristine lockfile
+RUN pnpm install --no-frozen-lockfile
+
+# Copy source code
+COPY apps/api ./apps/api
+COPY packages ./packages
+
+WORKDIR /app/apps/api
+
+EXPOSE 4000
+
+CMD ["pnpm", "dev"]
