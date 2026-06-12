@@ -18,7 +18,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: import.meta.dirname,
-        project: './tsconfig.json',
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
       },
       globals: globals.browser,
     },
