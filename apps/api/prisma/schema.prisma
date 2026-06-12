@@ -1,0 +1,121 @@
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+enum GoalStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum NotificationType {
+  SNIPPET_STARRED
+  SNIPPET_FORKED
+  STANDUP_COMMENTED
+}
+
+model User {
+  id       String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  displayName      String?
+  avatarUrl        String?
+  bio              String?
+  refreshToken     RefreshToken[]
+  standups         Standup[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  goals            Goal[]
+  snippets        Snippet[]
+  starredSnippets StarredSnippet[]
+  notifications   Notification[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Standup {
+  id          String   @id @default(cuid())
+  userId      String
+  did         String
+  plan        String
+  blockers    String?
+  date        DateTime
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+model Goal {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  status      GoalStatus @default(TODO)
+  progressPercent Int        @default(0)
+  targetDate     DateTime?
+  deleteAt    DateTime?
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Snippet {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  code        String
+  language    String
+  tags        String[]
+  visibility  Visibility @default(PUBLIC)
+  starCount   Int        @default(0)
+  forkOf       String?    // If this snippet is a fork, store the original snippet ID
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  originalSnippet Snippet? @relation("SnippetForks", fields: [forkOf], references: [id], onDelete: SetNull)
+  forkedSnippets Snippet[] @relation("SnippetForks")
+  starredBy StarredSnippet[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model StarredSnippet {
+  userId String
+  snippetId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snippet Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@id([userId, snippetId])
+}
+
+model Notification {
+  id String @id @default(cuid())
+  userId String
+  type NotificationType
+  message String
+  read Boolean @default(false)
+  entityId String?
+  entityType String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
