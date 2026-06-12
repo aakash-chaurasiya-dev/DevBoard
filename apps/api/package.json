@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "prebuild": "prisma generate",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
+    "pretypecheck": "prisma generate",
     "lint": "eslint src --ext .ts"
   },
   "keywords": [],
