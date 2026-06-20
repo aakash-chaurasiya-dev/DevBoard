@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import 'dotenv/config.js';
+// import { validate } from '../middleware/validate.js';
 
 export const router = Router();
 
