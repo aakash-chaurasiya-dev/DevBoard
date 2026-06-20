@@ -3,6 +3,7 @@ import cors from 'cors';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFound.js';
 import apiRouter from './routes/index.js';
+import 'dotenv/config.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
