@@ -1,28 +1,21 @@
-import express from 'express';
-import cors from 'cors';
-import { errorHandler } from './middleware/errorHandler.js';
-import { notFoundHandler } from './middleware/notFound.js';
-import apiRouter from './routes/index.js';
 import 'dotenv/config.js';
+import { createApp } from './app.js';
+import { validateEnv } from './config/env.js';
+import { connectRedis } from './lib/redis.js';
 
-const app = express();
-const port = process.env.PORT || 4000;
+async function start() {
+  validateEnv();
+  await connectRedis();
 
-app.use(cors());
-app.use(express.json());
+  const app = createApp();
+  const port = Number(process.env.PORT) || 4000;
 
-app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok', service: 'devboard-api' });
-});
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
 
-app.use('/api/v1', apiRouter);
-// app.get('/api/v1/health', (_req, res) => {
-//   res.status(200).json({ status: 'ok', service: 'devboard-api', version: 'v1' });
-// });
-
-app.use(notFoundHandler);
-app.use(errorHandler);
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+start().catch((error) => {
+  console.error('Failed to start API server:', error);
+  process.exit(1);
 });

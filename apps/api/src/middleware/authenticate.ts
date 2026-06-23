@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt.js';
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
@@ -7,7 +7,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   if (!authHeader) {
     return res.status(401).json({
       error: 'Authentication required',
-      code: 'AUTHENTICATION_REQUIRED',
+      code: 'NOT_AUTHENTICATED',
       statusCode: 401,
     });
   }
@@ -16,8 +16,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 
   if (schema !== 'Bearer' || !token) {
     return res.status(401).json({
-      error: 'Invalid authentication header',
-      code: 'INVALID_AUTHENTICATION_HEADER',
+      error: 'Invalid authorization header',
+      code: 'INVALID_TOKEN_FORMAT',
       statusCode: 401,
     });
   }
@@ -31,8 +31,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     next();
   } catch {
     return res.status(401).json({
-      error: 'Invalid or expired token',
-      code: 'INVALID_OR_EXPIRED_TOKEN',
+      error: 'Invalid or expired access token',
+      code: 'TOKEN_INVALID',
       statusCode: 401,
     });
   }

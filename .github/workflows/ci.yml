@@ -10,6 +10,39 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: devboard
+          POSTGRES_PASSWORD: devboard123
+          POSTGRES_DB: devboard_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U devboard -d devboard_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://devboard:devboard123@localhost:5432/devboard_db
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: devboard-super-secret-key-change-in-production
+      CORS_ORIGIN: http://localhost:5173
+      PORT: 4000
+      NODE_ENV: test
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,11 +62,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Run database migrations
+        run: pnpm --filter @devboard/api exec prisma migrate deploy
+
       - name: Type check
         run: pnpm -r typecheck
 
       - name: Lint
         run: pnpm -r lint
+
+      - name: Test API
+        run: pnpm --filter @devboard/api test
 
       - name: Build
         run: pnpm -r build

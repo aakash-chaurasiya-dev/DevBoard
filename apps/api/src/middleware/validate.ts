@@ -14,7 +14,7 @@ export function validate(schemas: ValidateSchemas) {
     if (bodyResult && !bodyResult.success) {
       return res.status(400).json({
         error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
+        code: 'VALIDATION_FAILED',
         statusCode: 400,
         details: z.flattenError(bodyResult.error),
       });
@@ -25,7 +25,7 @@ export function validate(schemas: ValidateSchemas) {
     if (paramsResult && !paramsResult.success) {
       return res.status(400).json({
         error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
+        code: 'VALIDATION_FAILED',
         statusCode: 400,
         details: z.flattenError(paramsResult.error),
       });
@@ -36,7 +36,7 @@ export function validate(schemas: ValidateSchemas) {
     if (queryResult && !queryResult.success) {
       return res.status(400).json({
         error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
+        code: 'VALIDATION_FAILED',
         statusCode: 400,
         details: z.flattenError(queryResult.error),
       });

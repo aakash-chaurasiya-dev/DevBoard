@@ -74,7 +74,7 @@ model Goal {
   status      GoalStatus @default(TODO)
   progressPercent Int        @default(0)
   targetDate     DateTime?
-  deleteAt    DateTime?
+  deletedAt   DateTime?
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
