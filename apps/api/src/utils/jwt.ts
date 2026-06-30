@@ -1,9 +1,17 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 import 'dotenv/config.js';
 
 export interface AccessTokenPayload {
   userId: string;
   email: string;
+  tokenType: 'access';
+}
+
+export interface RefreshTokenPayload {
+  userId: string;
+  tokenType: 'refresh';
+  exp: number;
 }
 
 function getJwtSecret(): string {
@@ -16,8 +24,10 @@ function getJwtSecret(): string {
   return secret;
 }
 
-export function signAccessToken(payload: AccessTokenPayload): string {
-  return jwt.sign(payload, getJwtSecret(), {
+export function signAccessToken(
+  payload: Omit<AccessTokenPayload, 'tokenType'>
+): string {
+  return jwt.sign({ ...payload, tokenType: 'access' }, getJwtSecret(), {
     expiresIn: '1h',
   });
 }
@@ -35,5 +45,34 @@ export function verifyAccessToken(token: string): AccessTokenPayload {
   return {
     userId: decoded.userId,
     email: decoded.email,
+    tokenType: 'access',
+  };
+}
+
+export function signRefreshToken(userId: string): string {
+  return jwt.sign(
+    { userId, tokenType: 'refresh', jti: randomUUID() },
+    getJwtSecret(),
+    {
+      expiresIn: '7d',
+    }
+  );
+}
+
+export function verifyRefreshToken(token: string): RefreshTokenPayload {
+  const decoded = jwt.verify(token, getJwtSecret());
+
+  if (
+    typeof decoded === 'string' ||
+    typeof decoded.userId !== 'string' ||
+    decoded.tokenType !== 'refresh' ||
+    typeof decoded.exp !== 'number'
+  ) {
+    throw new Error('Invalid token payload');
+  }
+  return {
+    userId: decoded.userId,
+    tokenType: 'refresh',
+    exp: decoded.exp,
   };
 }

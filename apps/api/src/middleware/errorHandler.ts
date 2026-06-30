@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { isProduction } from '../config/env.js';
 
 export function errorHandler(
   err: Error,
@@ -15,6 +16,6 @@ export function errorHandler(
     error: 'Internal Server Error',
     code: 'INTERNAL_SERVER_ERROR',
     statusCode: 500,
-    message: err.message,
+    ...(isProduction() ? {} : { message: err.message }),
   });
 }
